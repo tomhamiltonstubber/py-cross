@@ -19,32 +19,44 @@ class Game():
     current_player = None
     running = True
 
+    width = 3
     board = [i for i in range(1, 10)]
 
-    height = 3
-    width = 3
+    def __init__(self):
+        self.winning_lines = self._create_win_conditions()
 
-    winning_lines = [
-        # Horizontal
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        # Vertical
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        # Diaganol
-        [0, 4, 8],
-        [2, 4, 6]
-    ]
+    def _create_win_conditions(self):
+        winning_lines = []
+        # horizontal
+        for i in range(self.width):
+            line = []
+            for j in range(self.width):
+                line.append((i * self.width) + j)
+            winning_lines.append(line)
+
+        # vertical
+        for i in range(self.width):
+            line = []
+            for j in range(self.width):
+                line.append((j * self.width) + i)
+            winning_lines.append(line)
+
+        # forward diagonal
+        line = [i * (self.width + 1) for i in range(self.width)]
+        winning_lines.append(line)
+
+        # backward diagonal
+        line = [i * (self.width - 1) + self.width - 1 for i in range(self.width)]
+        winning_lines.append(line)
+        return winning_lines
 
     def build_board(self):
         line_no = 0
-        for i in range(self.height):
+        for i in range(self.width):
             start = line_no * self.width
             line = self.board[start:start + self.width]
             line = '|'.join(map(str, line))
-            if i < self.height - 1:
+            if i < self.width - 1:
                 line = line + '\n\t %s' % ('-' * (self.width + self.width - 1))
             line_no += 1
             print('\t', line)
@@ -52,10 +64,10 @@ class Game():
     def run(self):
         print("Let's play a game!")
         self.setup()
-        self.decide_first_turn()
+        self._decide_first_turn()
         self.take_turn()
 
-    def decide_first_turn(self):
+    def _decide_first_turn(self):
         self.current_player = self.player_one
 
     def take_turn(self):
@@ -76,7 +88,7 @@ class Game():
                 self.current_player = self.player_one
 
     def check_win_conditions(self):
-        if sum(isinstance(space, int) for space in self.board) < 3:
+        if sum(isinstance(space, str) for space in self.board) < 3:
             return
         win = None
         for line in self.winning_lines:
